@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "snn:block/vsacrificer",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "snn:block/vsacrificer"
+    },
+    "facing=south": {
+      "model": "snn:block/vsacrificer",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "snn:block/vsacrificer",
+      "y": 270
+    }
+  }
+}

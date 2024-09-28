@@ -1,0 +1,23 @@
+{
+  "block.snn.vsacrificer": "Virtual Sacrificer",
+  "gui.snn.aModifier": "Altar: %dx",
+  "gui.snn.cModifier": "Mult: %dx",
+  "gui.snn.consume": "Consuming: %d RF/t",
+  "gui.snn.energy": "Energy: %d / %d",
+  "gui.snn.noAltar": "Blood altar is missing!",
+  "gui.snn.noModel": "Missing data model!",
+  "gui.snn.produce": "Blood / Operation: %d mb",
+  "gui.snn.uses": "Catalyst Uses: %d / %d",
+  "item.snn.emptyAltar": "Blood Altar Pos is empty, select an altar before",
+  "item.snn.invalidPos": "Position is not a valid selection: %d x, %d y, %d z",
+  "item.snn.savedAltar": "Saved Blood Altar Pos: %d x, %d y, %d z",
+  "item.snn.setSacrificer": "Successfully saved blood altar in the virtual sacrificer",
+  "item.snn.wrench": "Wrench",
+  "jei.snn.blood": "Blood: %dmb",
+  "jei.snn.energy": "Energy: %dRF/t",
+  "jei.snn.mult": "Mult: %dx",
+  "jei.snn.uses": "Uses: %d",
+  "snn.container.vsacrificer": "Virtual Sacrificer",
+  "snn.container.vsacrificer.catalyst": "Virtual Sacrificer Catalysts",
+  "snn.itemGroup.main": "Sanguine Neural Networks"
+}
