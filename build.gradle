@@ -99,11 +99,18 @@ minecraft {
         client {
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             property 'forge.enabledGameTestNamespaces', mod_id
+            workingDirectory project.file('run/client')
+        }
+
+        client2 {
+            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
+            property 'forge.enabledGameTestNamespaces', mod_id
+            workingDirectory project.file('run/client2')
         }
 
         server {
             property 'forge.enabledGameTestNamespaces', mod_id
-            args '--nogui'
+            workingDirectory project.file('run/server')
         }
 
         // This run config launches GameTestServer and runs all registered gametests, then exits.
