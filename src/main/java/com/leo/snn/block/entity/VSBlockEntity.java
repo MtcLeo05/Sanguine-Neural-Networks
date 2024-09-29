@@ -271,6 +271,9 @@ public class VSBlockEntity extends BlockEntity implements MenuProvider {
             return;
         }
 
+        altarMultiplier = 1 + bloodAltar.getSacrificeMultiplier();
+        toProduce = (int) (toProduce * altarMultiplier);
+
         if(bloodAltar.getCurrentBlood() + toProduce >= bloodAltar.getCapacity()) {
             sync();
             return;
@@ -290,8 +293,18 @@ public class VSBlockEntity extends BlockEntity implements MenuProvider {
 
         progress = 0;
 
-        altarMultiplier = bloodAltar.getSacrificeMultiplier();
-        bloodAltar.sacrificialDaggerCall(toProduce, true);
+        bloodAltar.fillMainTank(toProduce);
+
+        int data = DataModelItem.getData(getModelStack());
+
+        DataModel model = DataModelItem.getStoredModel(getModelStack()).get();
+        ModelTier tier = ModelTier.getByData(model, data);
+
+        if(tier != ModelTier.FAULTY || Config.faultyData) {
+            data += Config.sacrificerData;
+        }
+
+        DataModelItem.setData(getModelStack(), data);
         sync();
     }
 

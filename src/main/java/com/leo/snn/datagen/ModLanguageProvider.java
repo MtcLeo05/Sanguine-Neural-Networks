@@ -90,6 +90,11 @@ public class ModLanguageProvider extends LanguageProvider {
         );
 
         this.add(
+            "item." + SanguineNeuralNetworks.MODID + ".wandUse",
+            "First shift r-click on the Blood Altar, then shift r-click on the Virtual Sacrificer"
+        );
+
+        this.add(
             "jei."+ SanguineNeuralNetworks.MODID + ".blood",
             "Blood: %dmb"
         );

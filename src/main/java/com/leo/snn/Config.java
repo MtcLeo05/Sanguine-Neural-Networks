@@ -22,12 +22,21 @@ public class Config {
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
     private static final ForgeConfigSpec.IntValue V_SACRIFICER_SPEED = BUILDER
-        .comment("How much time in ticks should the virtual sacrificer wait before producing blood")
+        .comment("How much time in ticks should the virtual sacrificer wait before producing blood [100]")
         .defineInRange("sacrificer_speed", 100, 1, Integer.MAX_VALUE);
 
     private static final ForgeConfigSpec.IntValue V_SACRIFICER_ENERGY = BUILDER
-        .comment("The energy capacity of the virtual sacrificer")
+        .comment("The energy capacity of the virtual sacrificer [1000000]")
         .defineInRange("sacrificer_energy", 1000000, 1, Integer.MAX_VALUE);
+
+    private static final ForgeConfigSpec.IntValue ITERATION_DATA = BUILDER
+        .comment("How much data to give to the model each iteration [1]")
+        .comment("Set to 0 to disable")
+        .defineInRange("sacrificer_data", 1, 0, Integer.MAX_VALUE);
+
+    private static final ForgeConfigSpec.BooleanValue FAULTY_DATA = BUILDER
+        .comment("Should data be given to faulty models? [true]")
+        .define("faulty_data", true);
 
     private static final ForgeConfigSpec.ConfigValue<List<? extends String>> CATALYST_CONFIG = BUILDER
         .comment("A list of catalyst that can be used to increase blood produced")
@@ -84,7 +93,7 @@ public class Config {
         ), Config::validateModels);
 
     private static final ForgeConfigSpec.ConfigValue<List<? extends Double>> TIER_MODIFIER = BUILDER
-        .comment("A list of floats that defines how much blood should each tier of data generates")
+        .comment("A list of floats that defines how much blood should each tier of data generates [0, 0.5, 1, 1.5, 3]")
         .comment("The list must remain with a length of 5, each missing entry is filled with a 0 and additional entries will be ignored")
         .comment("Each entry defines the modifier for: Faulty, Basic, Advanced, Superior, Self-Aware")
         .defineList("tiers", List.of(0d, 0.5d, 1d, 1.5d, 3d), Config::validateTiers);
@@ -93,6 +102,9 @@ public class Config {
 
     public static int sacrificerSpeed;
     public static int sacrificerEnergy;
+    public static int sacrificerData;
+
+    public static boolean faultyData;
 
     public static Map<Item, Pair<Float, Integer>> catalysts;
     public static Map<String, Pair<Integer, Integer>> models;
@@ -115,6 +127,9 @@ public class Config {
     static void onLoad(final ModConfigEvent event) {
         sacrificerSpeed = V_SACRIFICER_SPEED.get();
         sacrificerEnergy = V_SACRIFICER_ENERGY.get();
+        sacrificerData = ITERATION_DATA.get();
+
+        faultyData = FAULTY_DATA.get();
 
         catalysts = new HashMap<>();
         models = new HashMap<>();

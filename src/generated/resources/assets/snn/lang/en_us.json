@@ -12,6 +12,7 @@
   "item.snn.invalidPos": "Position is not a valid selection: %d x, %d y, %d z",
   "item.snn.savedAltar": "Saved Blood Altar Pos: %d x, %d y, %d z",
   "item.snn.setSacrificer": "Successfully saved blood altar in the virtual sacrificer",
+  "item.snn.wandUse": "First shift r-click on the Blood Altar, then shift r-click on the Virtual Sacrificer",
   "item.snn.wrench": "Wrench",
   "jei.snn.blood": "Blood: %dmb",
   "jei.snn.energy": "Energy: %dRF/t",
