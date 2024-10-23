@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "sanguine_networks:block/virtual_sacrificer",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "sanguine_networks:block/virtual_sacrificer"
+    },
+    "facing=south": {
+      "model": "sanguine_networks:block/virtual_sacrificer",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "sanguine_networks:block/virtual_sacrificer",
+      "y": 270
+    }
+  }
+}
