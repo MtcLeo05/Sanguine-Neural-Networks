@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "sanguine_networks:virtual_sacrificer"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "sanguine_networks:blocks/virtual_sacrificer"
+}
