@@ -263,7 +263,7 @@ public class VSBlockEntity extends BlockEntity implements MenuProvider {
             return;
         }
 
-        if (!hasCatalyst && catalystUses <= 0) {
+        if (!hasCatalyst && (catalystUses <= 0 && catalystUses != -1)) {
             catalystMult = 1;
         }
 
@@ -295,7 +295,7 @@ public class VSBlockEntity extends BlockEntity implements MenuProvider {
             return;
         }
 
-        if(hasCatalyst) {
+        if(hasCatalyst && maxCatalystUses > 1) {
             catalystUses--;
         }
 
