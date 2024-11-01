@@ -1,0 +1,12 @@
+{
+  "type": "sanguine_networks:blood",
+  "blood": [
+    0,
+    62,
+    125,
+    187,
+    375
+  ],
+  "energy": 250,
+  "entity": "minecraft:snow_golem"
+}

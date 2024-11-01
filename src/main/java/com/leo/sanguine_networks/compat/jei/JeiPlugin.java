@@ -4,12 +4,15 @@ import com.leo.sanguine_networks.Config;
 import com.leo.sanguine_networks.SanguineNeuralNetworks;
 import com.leo.sanguine_networks.client.screen.VSacrificerScreen;
 import com.leo.sanguine_networks.init.ModBlocks;
+import com.leo.sanguine_networks.recipe.CatalystRecipe;
+import com.leo.sanguine_networks.recipe.ModelRecipe;
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -19,7 +22,6 @@ import java.util.List;
 
 @mezz.jei.api.JeiPlugin
 public class JeiPlugin implements IModPlugin {
-    List<VirtualSacrificer> tiers = new ArrayList<>();
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -36,35 +38,14 @@ public class JeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        List<VSRecipe> vsRecipes = new ArrayList<>();
-        Config.models.forEach((model, values) -> {
-            ItemStack stack = new ItemStack(Hostile.Items.DATA_MODEL.get());
-            CompoundTag tag = stack.getOrCreateTag();
-            CompoundTag modelData = new CompoundTag();
-            modelData.putString("id", model);
-            tag.put("data_model", modelData);
-            stack.setTag(tag);
-
-            VSRecipe recipe = new VSRecipe(
-                stack,
-                values.first,
-                values.second
-            );
-
-            vsRecipes.add(recipe);
-        });
+        List<ModelRecipe> bloodRecipes = Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(ModelRecipe.Type.INSTANCE);
 
         registration.addRecipes(
             VirtualSacrificer.RECIPE_TYPE,
-            vsRecipes
+            bloodRecipes
         );
 
-
-        List<CatalystRecipe> catalystRecipes = new ArrayList<>();
-        Config.catalysts.forEach((item, values) -> {
-            CatalystRecipe recipe = new CatalystRecipe(item, values.first, values.second);
-            catalystRecipes.add(recipe);
-        });
+        List<CatalystRecipe> catalystRecipes = Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(CatalystRecipe.Type.INSTANCE);
 
         registration.addRecipes(
             Catalyst.RECIPE_TYPE,

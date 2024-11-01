@@ -124,7 +124,7 @@ public class VSacrificerScreen extends AbstractContainerScreen<VSacrificerMenu> 
 
         Component toDisplay;
 
-        if(menu.getData().get(9) == 0){
+        if(menu.getData().get(9) == 1){
             toDisplay = Component.translatable("gui." + SanguineNeuralNetworks.MODID + ".noModel");
         } else if (menu.getData().get(8) == 0) {
             toDisplay = Component.translatable("gui." + SanguineNeuralNetworks.MODID + ".noAltar");

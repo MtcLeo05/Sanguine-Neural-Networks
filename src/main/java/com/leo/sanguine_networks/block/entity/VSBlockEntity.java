@@ -4,8 +4,12 @@ import com.leo.sanguine_networks.Config;
 import com.leo.sanguine_networks.SanguineNeuralNetworks;
 import com.leo.sanguine_networks.init.ModBlockEntities;
 import com.leo.sanguine_networks.menu.VSacrificerMenu;
+import com.leo.sanguine_networks.recipe.CatalystRecipe;
+import com.leo.sanguine_networks.recipe.ModelRecipe;
 import com.leo.sanguine_networks.util.Pair;
+import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
+import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.placebo.cap.ModifiableEnergyStorage;
@@ -18,9 +22,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -35,9 +41,12 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wayoftime.bloodmagic.common.tile.TileAltar;
+
+import java.util.List;
 
 public class VSBlockEntity extends BlockEntity implements MenuProvider {
 
@@ -50,8 +59,7 @@ public class VSBlockEntity extends BlockEntity implements MenuProvider {
         @Override
         public boolean isItemValid(int slot, @NotNull ItemStack stack) {
             return switch(slot){
-                case 0 -> stack.getItem() instanceof DataModelItem && Config.models.containsKey(stack.getOrCreateTagElement("data_model").getString("id"));
-                case 1 -> Config.catalysts.containsKey(stack.getItem());
+                case 0 -> stack.getItem() instanceof DataModelItem;
                 default -> true;
             };
 
@@ -66,7 +74,7 @@ public class VSBlockEntity extends BlockEntity implements MenuProvider {
     private int progress = 0, maxProgress = 0;
     private int toProduce = 0;
     private float catalystMult = 0f, altarMultiplier;
-    private boolean hasModel = false;
+    private boolean missingModel = false;
 
     private BlockPos altarPos;
     TileAltar bloodAltar;
@@ -84,7 +92,7 @@ public class VSBlockEntity extends BlockEntity implements MenuProvider {
                 case 6 -> toProduce;
                 case 7 -> (int) (catalystMult * 1000);
                 case 8 -> bloodAltar != null ? 1: 0;
-                case 9 -> hasModel ? 1: 0;
+                case 9 -> missingModel ? 1: 0;
                 case 10 -> (int) (altarMultiplier * 1000);
                 default -> -1;
             };
@@ -234,11 +242,9 @@ public class VSBlockEntity extends BlockEntity implements MenuProvider {
             bloodAltar = null;
         }
 
-        hasModel = !getModelStack().isEmpty();
-
         if(maxProgress != Config.sacrificerSpeed) maxProgress = Config.sacrificerSpeed;
 
-        boolean hasCatalyst = catalystUses > 0;
+        boolean hasCatalyst = catalystUses > 0 || catalystUses == -1;
 
         if(!getCatalystStack().isEmpty() && !hasCatalyst) {
             maxCatalystUses = getCatalystFromStack(getCatalystStack()).second;
@@ -248,7 +254,9 @@ public class VSBlockEntity extends BlockEntity implements MenuProvider {
             sync();
         }
 
-        if(!hasModel) {
+        missingModel = getModelStack().isEmpty() || (getModelFromStack(getModelStack()).first == 0 && getModelFromStack(getModelStack()).second == 0);
+
+        if(missingModel) {
             progress = 0;
             toProduce = 0;
             sync();
@@ -259,7 +267,7 @@ public class VSBlockEntity extends BlockEntity implements MenuProvider {
             catalystMult = 1;
         }
 
-        toProduce = (int) (getBloodFromStack(getModelStack()) * catalystMult);
+        toProduce = (int) (getModelFromStack(getModelStack()).first * catalystMult);
 
         if(energyStorage.getEnergyStored() < getRFTick()) {
             sync();
@@ -279,8 +287,8 @@ public class VSBlockEntity extends BlockEntity implements MenuProvider {
             return;
         }
 
-        energyStorage.setEnergy(energyStorage.getEnergyStored() - getRFTick());
         progress++;
+        energyStorage.setEnergy(energyStorage.getEnergyStored() - getRFTick());
 
         if(progress < maxProgress) {
             sync();
@@ -314,7 +322,19 @@ public class VSBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     public Pair<Float, Integer> getCatalystFromStack(ItemStack stack){
-        return Config.catalysts.get(stack.getItem());
+        if(level.isClientSide) return Pair.of(0f, 0);
+        if(getModelStack().isEmpty()) return Pair.of(0f, 0);
+        List<CatalystRecipe> catalystRecipes = level.getRecipeManager().getAllRecipesFor(CatalystRecipe.Type.INSTANCE);
+
+        for (CatalystRecipe recipe : catalystRecipes) {
+            if(recipe.getInput().test(stack)) {
+                missingModel = true;
+                return Pair.of(recipe.getMultiplier(), recipe.getUses());
+            }
+        }
+
+        missingModel = false;
+        return Pair.of(0f, 0);
     }
 
     public ItemStack getModelStack(){
@@ -323,19 +343,26 @@ public class VSBlockEntity extends BlockEntity implements MenuProvider {
 
     public Pair<Integer, Integer> getModelFromStack(ItemStack stack){
         String mobId = stack.getOrCreateTagElement("data_model").getString("id");
-
-        return getModelStack().isEmpty() || !Config.models.containsKey(mobId) ? Pair.of(0, 0): Config.models.get(mobId);
-    }
-
-    public int getBloodFromStack(ItemStack stack){
-        int blood = getModelFromStack(stack).first;
+        List<ModelRecipe> recipes = level.getRecipeManager().getAllRecipesFor(ModelRecipe.Type.INSTANCE);
 
         DynamicHolder<DataModel> model = DataModelItem.getStoredModel(stack);
         ModelTier tier = ModelTier.getByData(model, DataModelItem.getData(stack));
 
-        blood *= Config.tiers.get(tier.ordinal());
+        for (ModelRecipe recipe : recipes) {
+            ItemStack modelStack = new ItemStack(Hostile.Items.DATA_MODEL.get());
+            EntityType<?> entityCheck = ForgeRegistries.ENTITY_TYPES.getValue(recipe.getEntity());
 
-        return blood;
+            DataModel modelCheck = DataModelRegistry.INSTANCE.getForEntity(entityCheck);
+            DataModelItem.setStoredModel(modelStack, modelCheck);
+
+            String idCheck = modelStack.getOrCreateTagElement("data_model").getString("id");
+
+            if(idCheck.equalsIgnoreCase(mobId)) {
+                return Pair.of(recipe.getBlood()[tier.ordinal()], recipe.getEnergy());
+            }
+        }
+
+        return Pair.of(0, 0);
     }
 
     public ItemStack getCatalystStack(){

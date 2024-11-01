@@ -2,6 +2,7 @@ package com.leo.sanguine_networks.compat.jei;
 
 import com.leo.sanguine_networks.SanguineNeuralNetworks;
 import com.leo.sanguine_networks.init.ModBlocks;
+import com.leo.sanguine_networks.recipe.CatalystRecipe;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -56,14 +57,14 @@ public class Catalyst implements IRecipeCategory<CatalystRecipe> {
             RecipeIngredientRole.INPUT,
             50,
             1
-        ).addItemStack(recipe.getOutput());
+        ).addIngredients(recipe.getInput());
     }
 
     @Override
     public void draw(CatalystRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
         Font font = Minecraft.getInstance().font;
 
-        Component energy = Component.translatable("jei."+ SanguineNeuralNetworks.MODID + ".mult", recipe.getMult());
+        Component energy = Component.translatable("jei."+ SanguineNeuralNetworks.MODID + ".mult", recipe.getMultiplier());
         guiGraphics.drawString(font, energy, 2, 44, 0xFFFF0000);
 
         Component blood = Component.translatable("jei."+ SanguineNeuralNetworks.MODID + ".uses", recipe.getUses());
